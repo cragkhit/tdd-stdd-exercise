@@ -265,7 +265,7 @@ What a `ReviewStore` can do:
 
 Open `reviews.py` and look at `add_review`, `reviews_for` and `render_reviews`. Ask yourself: **how does the text that a user types end up inside the SQL command, or inside the HTML?** That question is the heart of Part 2.
 
-**The tests.** The file is split into blocks by lines of `# ----`.
+**The tests.** Now open `test_reviews.py` (the **test** file, not `reviews.py`). It is split into blocks by long comment lines made of dashes (`# -------…`), each followed by a comment saying what the block is about.
 
 1. **A fixture.**
 

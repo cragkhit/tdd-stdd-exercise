@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flask app (port 8000)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "flask",
+            "args": ["--app", "app", "run", "--port", "8000"],
+            "cwd": "${workspaceFolder}",
+            "jinja": true
+        }
+    ]
+}

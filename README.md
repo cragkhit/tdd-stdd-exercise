@@ -19,7 +19,9 @@ In this lab you practise the **Red → Green → Refactor** cycle, then use it t
 
 ## Setup
 
-You need Python 3.9 or newer.
+You need Python 3.9 or newer. You can set up the lab from the command line or in VS Code. Both give you the same `.venv` folder inside `starter/`, so you can switch between them at any time.
+
+### Option A: Command line
 
 ```bash
 cd starter
@@ -30,6 +32,32 @@ pytest -q                          # pytest runs all tests in the folder
 ```
 
 Run one file with `pytest -q test_shopping_cart.py`, and one test with `pytest -q -k new_cart`.
+
+### Option B: VS Code (GUI)
+
+1. Install [VS Code](https://code.visualstudio.com) and the **Python** extension by Microsoft (*Extensions* view, `Ctrl+Shift+X` / `Cmd+Shift+X`, search for "Python").
+2. Choose *File → Open Folder…* and open the **`starter`** folder, not the repository root. If VS Code asks whether you trust the authors, click *Yes, I trust the authors*.
+3. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`), run **Python: Create Environment**, choose **Venv**, then choose Python 3.9 or newer. VS Code creates `.venv` and selects it as the interpreter. It will not offer `requirements.txt`, because the file is one folder up; skip that step.
+4. Open a new terminal with *Terminal → New Terminal*. VS Code activates the virtual environment for you, so the prompt starts with `(.venv)`. Install the packages:
+
+   ```bash
+   pip install -r ../requirements.txt
+   ```
+
+5. Click the **Testing** icon (the beaker) in the left Activity Bar. pytest is already configured in `starter/.vscode/settings.json`, so the tests are discovered automatically. If VS Code instead shows a *Configure Python Tests* button, choose **pytest** → **`.` (root directory)**.
+6. The tests appear in a tree. Click the ▷ button at the top to run all tests, or the ▷ next to a file or a single test to run only that one. You can also click the ▷ in the editor gutter next to each `def test_...`.
+
+Failing tests show a red ✗, passing tests a green ✓, which is exactly the Red → Green cycle you record in your TDD log. Click a failed test to see its failure message. To step through a test, set a breakpoint by clicking left of a line number, then right-click the test and choose *Debug Test*.
+
+If the tests do not appear:
+
+- Check the interpreter shown in the bottom-right status bar. It should say `('.venv': venv)`. If not, click it (or run **Python: Select Interpreter**) and choose the one in `./.venv`.
+- Open the *Output* panel and select *Python* from the drop-down to see the test discovery error. An `ImportError` for `Product` in `test_shopping_cart.py` is expected at first, because `shopping_cart.py` is empty.
+- Click the *Refresh Tests* button at the top of the Testing view after you change the configuration.
+
+For Part 3, `starter/.vscode/launch.json` contains a **Flask app (port 8000)** configuration. Open the *Run and Debug* view (`Ctrl+Shift+D` / `Cmd+Shift+D`), select it and press ▷ (or `F5`). This runs the same command as `flask --app app run --port 8000`, and you can set breakpoints in `app.py`. Press the red ■ to stop it.
+
+Bandit and ZAP have no VS Code integration in this lab: run `bandit` in the VS Code terminal as shown below, and use the ZAP desktop app.
 
 ### Setting up Bandit (SAST)
 
@@ -211,6 +239,8 @@ Start the application. Use port 8000, because macOS uses port 5000 for AirPlay.
 ```bash
 flask --app app run --port 8000
 ```
+
+In VS Code you can instead start the **Flask app (port 8000)** configuration from the *Run and Debug* view (see Setup, Option B). Restarting Flask is then the green ⟳ button in the debug toolbar.
 
 Open `http://localhost:8000/products/widget/reviews` in a browser to check that the app is running. Keep it running while you scan.
 

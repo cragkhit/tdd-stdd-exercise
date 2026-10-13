@@ -1,6 +1,6 @@
 # ITCY 553 Lab: TDD and Security TDD (STDD) in Python
 
-In this lab you will write **tests first, code second**. This way of working is called **Test-Driven Development (TDD)**. You will then use the same idea to find and fix **security holes** in a small web app. Along the way you will use two tools that look for security problems automatically.
+In this lab you will write **tests first, code second**. This way of working is called **Test-Driven Development (TDD)**. You will then use the same idea to find and fix **security holes** in a small web app. Along the way you will use a tool that looks for security problems automatically.
 
 You do **not** need to be an expert programmer. Every step tells you what to type and what you should see. If a word is new to you, look it up in [Key words](#key-words).
 
@@ -8,13 +8,15 @@ You do **not** need to be an expert programmer. Every step tells you what to typ
 |------|-------------|------|-------------------|
 | 1 | Practise TDD by building a shopping cart | 45 min | `shopping_cart.py`, `test_shopping_cart.py` |
 | 2 | Find and fix security holes in a product review feature | 75 min | `reviews.py`, `test_reviews.py` |
-| 3 | Test and scan the review web page | 45 min | `app.py`, `test_app.py` |
+| 3 *(optional)* | Test and scan the review web page | 45 min | `app.py`, `test_app.py` |
+
+Parts 1 and 2 are required. **Part 3 is optional**: it is more technical, and it is for students who finish early or want a challenge. You can skip every section marked *optional*.
 
 **Learning outcomes.** By the end of the lab you can:
 
 1. Write a failing test before you write any code, then write only enough code to make it pass.
 2. Think like an attacker: turn a normal feature description (a user story) into attack descriptions (abuser stories), and turn those into tests.
-3. Use the results of security scanning tools to decide which tests to write.
+3. Use the results of a security scanning tool to decide which tests to write.
 4. Fix security holes without breaking what the program already does.
 
 ### How to use this guide
@@ -39,6 +41,7 @@ You do not need to learn these by heart. Come back here when you meet a word you
 | **Test** | A small function that runs your code and checks the result. If the check is wrong, the test **fails**. |
 | **`assert`** | The check inside a test. `assert 2 + 2 == 4` passes; `assert 2 + 2 == 5` fails. `==` means "is equal to". |
 | **pytest** | The tool that finds your tests, runs them and reports which pass and which fail. |
+| **TDD log** | A table you hand in, with one row for every Red → Green cycle: the test you wrote, its failure message, the code you changed to make it pass, and any tidying up. |
 | **Red → Green → Refactor** | The TDD cycle. **Red:** write a test that fails. **Green:** write the smallest code that makes it pass. **Refactor:** tidy the code while keeping every test passing. |
 | **Exception / error** | Python's way of saying something went wrong, for example `ValueError`. Code can *raise* one on purpose to reject bad input. |
 | **Fixture** | Set-up code that pytest runs for you before a test, for example creating an empty database. |
@@ -49,7 +52,7 @@ You do not need to learn these by heart. Come back here when you meet a word you
 | **XSS (cross-site scripting)** | An attack where text typed by a user ends up in a web page as code, so the browser runs the attacker's JavaScript. |
 | **Escaping** | Changing special characters so they are shown as text, not run as code. `<` becomes `&lt;`. |
 | **SAST** | *Static* testing: a tool reads your source code without running it. In this lab: **Bandit**. |
-| **DAST** | *Dynamic* testing: a tool attacks your program while it is running. In this lab: **OWASP ZAP**. |
+| **DAST** | *Dynamic* testing: a tool attacks your program while it is running. In this lab: **OWASP ZAP**, used only in the optional Part 3. |
 | **HTTP status code** | A number a web server sends back with every page. `200` OK, `303` go to another page, `400` you sent bad data, `500` the server crashed. |
 | **Header** | Extra information that comes with a web page. Some headers tell the browser to turn on security protections. |
 | **localhost / port** | `localhost` means "this computer". A port is like a door number; the lab app uses door `8000`, so its address is `http://localhost:8000`. |
@@ -118,7 +121,7 @@ Other ways to run tests:
 
 A **red ✗** means a test failed and a **green ✓** means it passed: this is the Red → Green cycle you write down in your TDD log. Click a failed test to see why it failed. To run a test line by line, click just left of a line number to set a red dot (a *breakpoint*), then right-click the test and choose *Debug Test*.
 
-If the tests do not appear, or you want to run the Flask app from VS Code in Part 3, see [VSCODE.md](VSCODE.md).
+If the tests do not appear, or you want to run the Flask app from VS Code in the optional Part 3, see [VSCODE.md](VSCODE.md).
 
 ### Setting up Bandit (SAST)
 
@@ -146,9 +149,11 @@ Useful options:
 | `bandit -ll reviews.py` | Show only medium and high severity issues (`-lll` for high only) |
 | `bandit -f html -o bandit-before.html reviews.py app.py` | Save the results as a web page. Use this for the "before" and "after" results in your report |
 
-### Setting up OWASP ZAP (DAST)
+### Setting up OWASP ZAP (DAST) *(optional)*
 
-[ZAP](https://www.zaproxy.org) attacks a **running** website to find security problems. You only need it in Part 3, but install it **before** the lab, because the download is large (about 250 MB).
+> **Skip this section** unless you plan to do the optional Part 3.
+
+[ZAP](https://www.zaproxy.org) attacks a **running** website to find security problems. If you plan to do Part 3, install it **before** the lab, because the download is large (about 250 MB).
 
 Download ZAP from <https://www.zaproxy.org/download/> and follow the steps for your computer.
 
@@ -158,9 +163,9 @@ Download ZAP from <https://www.zaproxy.org/download/> and follow the steps for y
 2. Open the downloaded `.dmg` file and drag *ZAP* into *Applications*.
 3. The first time you open ZAP, macOS says *"ZAP" cannot be opened because the developer cannot be verified*. This is normal for ZAP. Click *Done*, open *System Settings → Privacy & Security*, scroll down and click *Open Anyway* next to the message about ZAP.
 
-If you use Homebrew, `brew install --cask zap` does steps 1 and 2 for you.
-
 ![ZAP 2.17 on macOS after the first launch, showing the Welcome to ZAP screen with the Automated Scan, Manual Explore and Learn More buttons](images/zap-welcome-macos.png)
+
+If you use Homebrew, `brew install --cask zap` does steps 1 and 2 for you.
 
 **Windows**
 
@@ -186,15 +191,6 @@ If ZAP does not start on Windows or Linux, the usual reason is an old Java. Run 
 
 > ⚠️ Only scan programs that you run yourself, such as the lab app on `localhost`. Scanning other people's websites without permission may be illegal.
 
-### Your TDD log
-
-As you work, keep a **TDD log**: a table with one row for every Red → Green cycle. You will hand it in. A spreadsheet or a table in a Word document is fine. The first two rows are filled in for you (you will see exactly how in Part 1):
-
-| # | Test written | Red? (failure message) | Code change to go green | Refactoring |
-|---|--------------|------------------------|-------------------------|-------------|
-| 1 | `test_new_cart_is_empty` | `ImportError: cannot import name 'Product'` | Added empty `Product` and `ShoppingCart` classes | none |
-| 2 | `test_new_cart_is_empty` (same test) | `AttributeError: 'ShoppingCart' object has no attribute 'products'` | Gave `ShoppingCart` an empty `products` list | none |
-
 ---
 
 ## Project walkthrough
@@ -209,8 +205,8 @@ starter/
 ├── test_shopping_cart.py   Part 1: one test written for you
 ├── reviews.py              Part 2: saves reviews and turns them into a web page (has security holes)
 ├── test_reviews.py         Part 2: tests that already pass, plus lists of attack inputs
-├── app.py                  Part 3: the web page, built with Flask
-├── test_app.py             Part 3: tests for the web page
+├── app.py                  Part 3 (optional): the web page, built with Flask
+├── test_app.py             Part 3 (optional): tests for the web page
 └── .vscode/                VS Code settings (see VSCODE.md)
 ```
 
@@ -311,7 +307,9 @@ Open `reviews.py` and look at `add_review`, `reviews_for` and `render_reviews`. 
 
 5. **Abuser story A3.** Empty. You choose an attack and write the tests.
 
-### Part 3 files: `app.py` and `test_app.py`
+### Part 3 files: `app.py` and `test_app.py` *(optional)*
+
+You only need this if you do Part 3.
 
 **The code.** `app.py` is a small website made with [Flask](https://flask.palletsprojects.com). It has one page, `/products/<product>/reviews`. The `<product>` part can be any word: `/products/widget/reviews` shows the reviews for "widget".
 
@@ -419,7 +417,7 @@ class ShoppingCart:
 AttributeError: 'ShoppingCart' object has no attribute 'products'
 ```
 
-That is progress: the classes exist now, but a cart has no `products`. Write this down as row 2 of your log.
+That is progress: the classes exist now, but a cart has no `products`. Write each failure message down in your TDD log, one row per cycle.
 
 **3. Green.** Replace the `ShoppingCart` class with:
 
@@ -613,7 +611,9 @@ Both should now be clean: all tests pass and Bandit says `No issues identified`.
 
 ---
 
-## Part 3: The web form and DAST
+## Part 3 *(optional)*: The web form and DAST
+
+> **This part is optional.** It is more technical than Parts 1 and 2. Do it if you have finished Part 2 and want a challenge. It earns bonus points (see the [grading rubric](#grading-rubric-100-points)).
 
 `app.py` puts the review feature on a web page. Some problems only show up when the website is actually running, so in this part you also attack it with ZAP.
 
@@ -721,8 +721,8 @@ You may decide to **accept** some findings instead of fixing them, for example "
 | `ERROR: file or directory not found` or `no tests ran` | You are in the wrong folder | `cd` into `starter`. The command `ls` (Windows: `dir`) should list `test_shopping_cart.py` |
 | `IndentationError` | Python uses spaces at the start of a line to group code | Indent with 4 spaces. Lines inside a `def` or `class` must line up with each other |
 | `NameError: name 'pytest' is not defined` (or `html`) | You used something without importing it | Add `import pytest` (or `import html`) at the top of the file |
-| `Address already in use` / `Port 8000 is in use` | Flask is already running in another terminal | Find that terminal and press `Ctrl+C`, then start Flask again |
-| ZAP says it cannot reach or attack the URL | Flask is not running, or the address is wrong | Check Flask's terminal and use `http://localhost:8000/...` |
+| `Address already in use` / `Port 8000 is in use` (Part 3) | Flask is already running in another terminal | Find that terminal and press `Ctrl+C`, then start Flask again |
+| ZAP says it cannot reach or attack the URL (Part 3) | Flask is not running, or the address is wrong | Check Flask's terminal and use `http://localhost:8000/...` |
 
 Still stuck? Read the **last** lines of the error message first: they usually name the file, the line number and the problem. Then ask your instructor or a classmate.
 
@@ -733,28 +733,28 @@ Still stuck? Read the **last** lines of the error message first: they usually na
 Submit one zip file containing:
 
 1. Your final `starter/` folder (code and tests). You can leave out the `.venv` folder.
-2. Your **TDD log** (Parts 1 to 3).
+2. Your **TDD log** (Parts 1 and 2, plus Part 3 if you did it).
 3. A short report (2 to 3 pages) containing:
    - the Bandit output before and after your fixes;
    - your abuser stories table, including A3;
-   - the ZAP summary before and after, and which findings you fixed or accepted, with reasons;
+   - *only if you did Part 3:* the ZAP summary before and after, and which findings you fixed or accepted, with reasons;
    - your answers to the reflection questions below.
 
 ## Reflection questions
 
 1. In Part 2 the teammate's tests all passed. What does that tell you about the claim that TDD gives "near-zero defects"?
-2. Bandit found the SQL injection. Did it find the XSS? Why or why not? What kinds of problem does SAST miss that tests or DAST catch, and the other way round?
+2. Bandit found the SQL injection. Did it find the XSS? Why or why not? What kinds of problem does a tool that only reads the code (SAST) miss, that your tests catch? (If you did Part 3, also compare it with ZAP.)
 3. You both escaped the output **and** rejected HTML in the input. Why use both? Which one is the essential defence, and why?
 4. Give one example of a security fix that would have **changed normal behaviour** if you had not had tests. How did the tests protect you?
-5. A CI pipeline runs checks automatically every time someone shares new code. Where in it would you run `pytest`, `bandit` and ZAP? Which of them should stop the new code from being accepted if they fail?
+5. A CI pipeline runs checks automatically every time someone shares new code. Where in it would you run `pytest` and `bandit` (and ZAP, if you did Part 3)? Which of them should stop the new code from being accepted if they fail?
 
 ## Grading rubric (100 points)
 
 | Criterion | Points |
 |-----------|--------|
-| Part 1: correct cart; tests cover R1 to R5; log shows real Red → Green steps | 20 |
-| Part 2: security tests for A1 and A2 that use parametrize and fail on the starter code | 20 |
-| Part 2: own abuser story A3 with boundary tests | 10 |
-| Part 2: fixes follow the secure-coding rules; Bandit clean; teammate's tests still pass | 15 |
-| Part 3: form rejection tests and fixes; ZAP findings turned into tests | 20 |
+| Part 1: correct cart; tests cover R1 to R5; log shows real Red → Green steps | 25 |
+| Part 2: security tests for A1 and A2 that use parametrize and fail on the starter code | 25 |
+| Part 2: own abuser story A3 with boundary tests | 15 |
+| Part 2: fixes follow the secure-coding rules; Bandit clean; teammate's tests still pass | 20 |
 | Report and reflection answers | 15 |
+| **Bonus, Part 3 (optional):** form rejection tests and fixes; ZAP findings turned into tests | up to +20 |

@@ -94,9 +94,9 @@ Download ZAP from <https://www.zaproxy.org/download/>. Each installer is about 2
 2. Open the `.dmg` file and drag *ZAP* into *Applications*.
 3. ZAP releases are not signed, so the first launch shows *"ZAP" cannot be opened because the developer cannot be verified*. Click *Done*, then go to *System Settings → Privacy & Security*, scroll down and click *Open Anyway* next to the message about ZAP.
 
-If you use Homebrew, `brew install --cask zap` does steps 1 and 2 for you.
-
 ![ZAP 2.17 on macOS after the first launch, showing the Welcome to ZAP screen with the Automated Scan, Manual Explore and Learn More buttons](images/zap-welcome-macos.png)
+
+If you use Homebrew, `brew install --cask zap` does steps 1 and 2 for you.
 
 **Windows**
 

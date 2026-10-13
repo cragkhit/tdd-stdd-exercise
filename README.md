@@ -96,6 +96,8 @@ Download ZAP from <https://www.zaproxy.org/download/>. Each installer is about 2
 
 If you use Homebrew, `brew install --cask zap` does steps 1 and 2 for you.
 
+![ZAP 2.17 on macOS after the first launch, showing the Welcome to ZAP screen with the Automated Scan, Manual Explore and Learn More buttons](images/zap-welcome-macos.png)
+
 **Windows**
 
 1. ZAP for Windows needs **Java 17 or newer**. Check with `java -version` in a terminal. If Java is missing or older than 17, install the *Temurin 17 (LTS)* or newer JDK from <https://adoptium.net>, then open a **new** terminal and check again.

@@ -342,7 +342,9 @@ def post_review(client, author="alice", rating="5", text="Works well"):
 
 ### What you should see on the first run
 
-In the terminal, inside `starter/` with `(.venv)` active:
+You can run the tests in the terminal or by clicking in VS Code. Both run the same pytest.
+
+**Using the terminal** (inside `starter/`, with `(.venv)` active):
 
 ```bash
 pytest -q
@@ -363,6 +365,15 @@ FAILED test_reviews.py::test_sql_in_review_text_is_stored_as_plain_text[' OR '1'
 ```
 
 The 5 passing tests are the normal-feature tests (3 in `test_reviews.py`, 2 in `test_app.py`). The 4 failures are the SQL injection example, one per attack input. **All of this is expected.**
+
+**Using VS Code** (with the `starter` folder open, as in [Option B](#option-b-vs-code-gui)):
+
+1. Click the **Testing** icon (the beaker 🧪) on the left.
+2. Click ▷ (*Run Tests*) at the top of the Testing view.
+3. Look at the tree:
+   - `test_app.py` and `test_reviews.py` show the same results as the terminal: a **green ✓** on the 5 normal-feature tests and a **red ✗** on the 4 SQL injection tests. Click the arrow next to `test_sql_in_review_text_is_stored_as_plain_text` to see one entry per attack input.
+   - `test_shopping_cart.py` is missing. Instead there is a **pytest Discovery Error** entry, because the file cannot load yet. Click *Show output* under it to see the `ImportError`. Unlike the terminal, VS Code still runs the other files.
+4. Click any red ✗ test to see its failure message in the editor, as in the screenshot in [Option B](#option-b-vs-code-gui). The full pytest output is in the *Test Results* tab at the bottom.
 
 ### pytest cheat sheet
 
@@ -398,6 +409,8 @@ Follow these steps exactly. They show you what TDD feels like.
 pytest -q test_shopping_cart.py
 ```
 
+*In VS Code:* open the **Testing** view. `test_shopping_cart.py` does not appear in the tree yet; there is a **pytest Discovery Error** entry instead. Click *Show output* under it to read the error.
+
 It fails with `ImportError: cannot import name 'Product' from 'shopping_cart'`. In plain words: *the test wants `Product` and `ShoppingCart`, and they do not exist.*
 
 **2. Write the smallest code.** Add this to `shopping_cart.py`, under the comment, and save:
@@ -411,7 +424,7 @@ class ShoppingCart:
     pass
 ```
 
-`pass` means "nothing here yet". Run the test again. It still fails, but with a **different** message:
+`pass` means "nothing here yet". Run the test again. (*In VS Code:* click *Refresh Tests* (⟳) at the top of the Testing view. `test_shopping_cart.py` now appears in the tree; click the ▷ next to `test_new_cart_is_empty`.) It still fails, but with a **different** message:
 
 ```
 AttributeError: 'ShoppingCart' object has no attribute 'products'
@@ -567,6 +580,8 @@ The first security test, `test_sql_in_review_text_is_stored_as_plain_text`, is w
 ```bash
 pytest -q test_reviews.py
 ```
+
+*In VS Code:* in the **Testing** view, click the ▷ next to `test_reviews.py`. After you add a new test and save the file, it appears in the tree by itself; if it does not, click *Refresh Tests* (⟳).
 
 It fails for every input. Notice that even the **harmless** review `It's great!` fails. Why? (Hint: look at the `'` in `It's`.) A security bug is often a normal bug too.
 

@@ -47,6 +47,8 @@ Run one file with `pytest -q test_shopping_cart.py`, and one test with `pytest -
 5. Click the **Testing** icon (the beaker) in the left Activity Bar. pytest is already configured in `starter/.vscode/settings.json`, so the tests are discovered automatically. If VS Code instead shows a *Configure Python Tests* button, choose **pytest** → **`.` (root directory)**.
 6. The tests appear in a tree. Click the ▷ button at the top to run all tests, or the ▷ next to a file or a single test to run only that one. You can also click the ▷ in the editor gutter next to each `def test_...`.
 
+   ![VS Code Testing view: the test tree on the left shows passing and failing tests, the editor shows the failure message inline, and the Test Results panel shows the full pytest output](images/vscode-testing.png)
+
 Failing tests show a red ✗, passing tests a green ✓, which is exactly the Red → Green cycle you record in your TDD log. Click a failed test to see its failure message. To step through a test, set a breakpoint by clicking left of a line number, then right-click the test and choose *Debug Test*.
 
 If the tests do not appear, or to run the Flask app from VS Code in Part 3, see [VSCODE.md](VSCODE.md).

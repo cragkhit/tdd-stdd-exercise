@@ -59,25 +59,39 @@ Useful options:
 
 ### Setting up OWASP ZAP (DAST)
 
-[ZAP](https://www.zaproxy.org) scans a **running** web application. You only need it in Part 3, but install it before the lab, because the download is large. Choose **one** option.
+[ZAP](https://www.zaproxy.org) scans a **running** web application. You only need it in Part 3, but install it before the lab, because the download is large.
 
-**Option A: Docker (recommended).** This runs the baseline scan from the command line.
+Download ZAP from <https://www.zaproxy.org/download/>. Each installer is about 250 MB. Follow the steps for your operating system.
 
-1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows or macOS) or Docker Engine (Linux), and start it.
-2. Download the ZAP image (over 1 GB) and check that it runs:
+**macOS**
 
-   ```bash
-   docker pull ghcr.io/zaproxy/zaproxy:stable
-   docker run --rm ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -h    # prints the scan options
-   ```
+1. Check your Mac's chip: Apple menu → *About This Mac*. Download the **macOS (Apple Silicon)** installer for an M-series chip, or the **macOS (Intel)** installer for an Intel chip. Both include the Java runtime, so you do not need to install Java.
+2. Open the `.dmg` file and drag *ZAP* into *Applications*.
+3. ZAP releases are not signed, so the first launch shows *"ZAP" cannot be opened because the developer cannot be verified*. Click *Done*, then go to *System Settings → Privacy & Security*, scroll down and click *Open Anyway* next to the message about ZAP.
 
-If `docker` reports that it cannot connect to the Docker daemon, Docker Desktop is not running. Start it and try again.
+If you use Homebrew, `brew install --cask zap` does steps 1 and 2 for you.
 
-**Option B: the ZAP desktop app.** Use this option if you cannot install Docker.
+**Windows**
 
-1. Download the installer for your operating system from <https://www.zaproxy.org/download/> and install it. The Windows and macOS installers include the Java runtime that ZAP needs.
-2. Start ZAP. When it asks whether to persist the session, choose *No, I do not want to persist this session*.
-3. You should see the *Quick Start* tab with an *Automated Scan* button.
+1. ZAP for Windows needs **Java 17 or newer**. Check with `java -version` in a terminal. If Java is missing or older than 17, install the *Temurin 17 (LTS)* or newer JDK from <https://adoptium.net>, then open a **new** terminal and check again.
+2. Download the **Windows (64) Installer** and run it. If Windows SmartScreen says it protected your PC, click *More info → Run anyway*. ZAP releases are not signed, so this warning is expected.
+3. Accept the default options and finish the installer. Start ZAP from the Start menu.
+
+Alternatively, `winget install --id=ZAP.ZAP -e` installs ZAP, but you still need Java 17 or newer.
+
+**Linux**
+
+1. Install Java 17 or newer, for example `sudo apt install openjdk-17-jre` on Ubuntu or Debian, and check with `java -version`.
+2. Install ZAP with `sudo snap install zaproxy --classic`, or download the **Linux Installer** (`.sh` file) and run `bash ZAP_*_unix.sh`.
+3. Start ZAP from your applications menu, or run `zaproxy` if you installed the snap.
+
+**First start (all systems)**
+
+1. When ZAP asks whether to persist the session, choose *No, I do not want to persist this session*, then click *Start*.
+2. If ZAP offers to update add-ons, accept. The download takes a minute.
+3. You should see the *Quick Start* tab with an *Automated Scan* button. ZAP is ready.
+
+If ZAP does not start on Windows or Linux, the usual cause is an old Java version. Run `java -version` and check that it reports 17 or newer.
 
 > Scan only applications that you run yourself, such as the lab app on `localhost`. Scanning other people's sites without permission may be illegal.
 
@@ -195,52 +209,26 @@ Hint: what does the starter return for `rating=abc`? Why is a 500 error with a s
 Start the application. Use port 8000, because macOS uses port 5000 for AirPlay.
 
 ```bash
-flask --app app run --host 0.0.0.0 --port 8000
+flask --app app run --port 8000
 ```
 
-Open `http://localhost:8000/products/widget/reviews` in a browser to check that the app is running. Then run the scan in a **second** terminal while the app keeps running in the first one.
+Open `http://localhost:8000/products/widget/reviews` in a browser to check that the app is running. Keep it running while you scan.
 
-**Option A: Docker baseline scan.** Run this from the `starter` folder. It saves an HTML report in your current folder:
-
-```bash
-docker run --rm -t -v "$(pwd)":/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-    -t http://host.docker.internal:8000/products/widget/reviews \
-    -r zap-before.html
-# Linux: add  --add-host=host.docker.internal:host-gateway  after "docker run"
-# Windows PowerShell: use  -v "${PWD}:/zap/wrk/:rw"  and put the command on one line
-```
-
-- `-t` is the target URL. Inside the container, `localhost` means the container itself, so use `host.docker.internal` to reach your machine.
-- `-r zap-before.html` saves the report. After your fixes, run the same command with `-r zap-after.html`.
-- The `-v` option shares your current folder with the container as `/zap/wrk`. ZAP writes the report there.
-
-The baseline scan crawls the site for about a minute and checks the responses **passively**. It does not attack the app. The terminal output ends with a summary like this (your alerts and numbers will differ):
-
-```
-WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x 2
-...
-FAIL-NEW: 0  FAIL-INPROG: 0  WARN-NEW: 6  WARN-INPROG: 0  INFO: 0  IGNORE: 0  PASS: 60
-```
-
-Each WARN or FAIL line gives the alert name, its ID in square brackets and the number of URLs affected. Look up an ID at <https://www.zaproxy.org/docs/alerts/> to see what it means and how to fix it. The command exits with code 1 if there is any FAIL, 2 if there are only WARNs and 0 if everything passes. This is how a CI pipeline would use it.
-
-If the scan reports that it cannot reach the target, check that Flask is still running with `--host 0.0.0.0` and that the URL uses port 8000.
-
-**Option B: ZAP desktop app.**
-
-1. In the *Quick Start* tab, click *Automated Scan*.
+1. In ZAP's *Quick Start* tab, click *Automated Scan*.
 2. Set *URL to attack* to `http://localhost:8000/products/widget/reviews`. Leave *Use traditional spider* ticked and *Use ajax spider* unticked.
 3. Click *Attack*. Wait until the progress bars at the bottom finish.
-4. Open the *Alerts* tab to see the findings. Click an alert to see the affected URL, the evidence and the suggested fix.
+4. Open the *Alerts* tab to see the findings, grouped by risk: High, Medium, Low and Informational. Click an alert to see the affected URL, the evidence and the suggested fix. Look up an alert's ID at <https://www.zaproxy.org/docs/alerts/> for more detail.
 5. Save the report with *Report → Generate Report*, choosing the *Traditional HTML Report* template. Name it `zap-before.html`, and later `zap-after.html`.
 
-Unlike the Docker baseline, *Automated Scan* also runs an **active** scan: it sends attack payloads to your app. This finds more problems, but it also posts junk reviews into the in-memory database. Restart Flask before you scan again.
+*Automated Scan* first crawls the site, then runs an **active** scan: it sends attack payloads to your app. This finds more problems than just reading the responses, but it also posts junk reviews into the in-memory database. Restart Flask before you scan again.
+
+If ZAP cannot reach the target, check that Flask is still running and that the URL uses port 8000.
 
 Also try visiting `/products/<img src=x onerror=alert(1)>/reviews` in a browser on the **starter** version. Which line of `app.py` is responsible?
 
 ### Step 3.3: Turn findings into tests
 
-For each WARN or FAIL that ZAP reports, such as a missing `Content-Security-Policy`, a missing `X-Content-Type-Options` or a missing anti-clickjacking header:
+For each High, Medium or Low alert that ZAP reports, such as a missing `Content-Security-Policy`, a missing `X-Content-Type-Options` or a missing anti-clickjacking header:
 
 1. Write a test in `test_app.py` that checks the response for the fix. Run it and see it fail (Red).
 2. Fix `app.py`. A single `@app.after_request` hook is the cleanest place to set headers (Green).

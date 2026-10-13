@@ -15,8 +15,6 @@ In this lab you practise the **Red → Green → Refactor** cycle, then use it t
 3. Use SAST and DAST findings to drive new tests.
 4. Fix security flaws without breaking functional behaviour.
 
-After setting up, read the **[project walkthrough](#project-walkthrough)**. It explains what each file and test does and what to expect when you first run the tests.
-
 ---
 
 ## Setup

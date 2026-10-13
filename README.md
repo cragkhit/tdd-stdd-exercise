@@ -38,6 +38,9 @@ Run one file with `pytest -q test_shopping_cart.py`, and one test with `pytest -
 1. Install [VS Code](https://code.visualstudio.com) and the **Python** extension by Microsoft (*Extensions* view, `Ctrl+Shift+X` / `Cmd+Shift+X`, search for "Python").
 2. Choose *File → Open Folder…* and open the **`starter`** folder, not the repository root. If VS Code asks whether you trust the authors, click *Yes, I trust the authors*.
 3. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`), run **Python: Create Environment**, choose **Venv**, then choose Python 3.9 or newer. VS Code creates `.venv` and selects it as the interpreter. It will not offer `requirements.txt`, because the file is one folder up; skip that step.
+
+   ![VS Code Command Palette with "Python: Create Environment..." selected](images/vscode-create-environment.png)
+
 4. Open a new terminal with *Terminal → New Terminal*. VS Code activates the virtual environment for you, so the prompt starts with `(.venv)`. Install the packages:
 
    ```bash

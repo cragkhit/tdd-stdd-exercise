@@ -122,12 +122,6 @@ If ZAP does not start on Windows or Linux, the usual cause is an old Java versio
 
 > Scan only applications that you run yourself, such as the lab app on `localhost`. Scanning other people's sites without permission may be illegal.
 
-Keep a **TDD log** as you go: one row per cycle. You will hand it in.
-
-| # | Test written | Red? (failure message) | Code change to go green | Refactoring |
-|---|--------------|------------------------|-------------------------|-------------|
-| 1 | `test_new_cart_is_empty` | `ImportError: cannot import name 'Product'` | Added empty `ShoppingCart` and `Product` classes | none |
-
 ---
 
 ## Project walkthrough

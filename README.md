@@ -31,6 +31,56 @@ pytest -q                          # pytest runs all tests in the folder
 
 Run one file with `pytest -q test_shopping_cart.py`, and one test with `pytest -q -k new_cart`.
 
+### Setting up Bandit (SAST)
+
+[Bandit](https://bandit.readthedocs.io) is a static analysis tool for Python. It is listed in `requirements.txt`, so the `pip install` above already installed it into your virtual environment. Check that it works:
+
+```bash
+bandit --version                   # should print "bandit 1.7.5" or newer
+bandit reviews.py app.py           # scan the application code
+```
+
+The scan should report two B608 (SQL injection) issues in `reviews.py`. That is expected: you will fix them in Part 2.
+
+If `bandit: command not found` appears:
+
+- Make sure the virtual environment is active. Your prompt should start with `(.venv)`; if it does not, run `source .venv/bin/activate` again (Windows: `.venv\Scripts\activate`).
+- Install it on its own with `pip install "bandit>=1.7.5"`.
+- Run it through Python instead: `python -m bandit reviews.py app.py`.
+
+Useful options:
+
+| Command | What it does |
+|---------|--------------|
+| `bandit reviews.py app.py` | Scan specific files |
+| `bandit -r . -x ./.venv -s B101` | Scan the whole folder, skipping the virtual environment and the B101 warning that every `assert` in the test files would trigger |
+| `bandit -ll reviews.py` | Show only medium and high severity issues (`-lll` for high only) |
+| `bandit -f html -o bandit-before.html reviews.py app.py` | Save the report as HTML, handy for the "before" and "after" outputs in your report |
+
+### Setting up OWASP ZAP (DAST)
+
+[ZAP](https://www.zaproxy.org) scans a **running** web application. You only need it in Part 3, but install it before the lab, because the download is large. Choose **one** option.
+
+**Option A: Docker (recommended).** This runs the baseline scan from the command line.
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows or macOS) or Docker Engine (Linux), and start it.
+2. Download the ZAP image (over 1 GB) and check that it runs:
+
+   ```bash
+   docker pull ghcr.io/zaproxy/zaproxy:stable
+   docker run --rm ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -h    # prints the scan options
+   ```
+
+If `docker` reports that it cannot connect to the Docker daemon, Docker Desktop is not running. Start it and try again.
+
+**Option B: the ZAP desktop app.** Use this option if you cannot install Docker.
+
+1. Download the installer for your operating system from <https://www.zaproxy.org/download/> and install it. The Windows and macOS installers include the Java runtime that ZAP needs.
+2. Start ZAP. When it asks whether to persist the session, choose *No, I do not want to persist this session*.
+3. You should see the *Quick Start* tab with an *Automated Scan* button.
+
+> Scan only applications that you run yourself, such as the lab app on `localhost`. Scanning other people's sites without permission may be illegal.
+
 Keep a **TDD log** as you go: one row per cycle. You will hand it in.
 
 | # | Test written | Red? (failure message) | Code change to go green | Refactoring |
@@ -148,15 +198,43 @@ Start the application. Use port 8000, because macOS uses port 5000 for AirPlay.
 flask --app app run --host 0.0.0.0 --port 8000
 ```
 
-In a second terminal, run a ZAP baseline scan (requires Docker):
+Open `http://localhost:8000/products/widget/reviews` in a browser to check that the app is running. Then run the scan in a **second** terminal while the app keeps running in the first one.
+
+**Option A: Docker baseline scan.** Run this from the `starter` folder. It saves an HTML report in your current folder:
 
 ```bash
-docker run --rm -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-    -t http://host.docker.internal:8000/products/widget/reviews
+docker run --rm -t -v "$(pwd)":/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+    -t http://host.docker.internal:8000/products/widget/reviews \
+    -r zap-before.html
 # Linux: add  --add-host=host.docker.internal:host-gateway  after "docker run"
+# Windows PowerShell: use  -v "${PWD}:/zap/wrk/:rw"  and put the command on one line
 ```
 
-If Docker is not available, use the ZAP desktop app's *Automated Scan* on the same URL.
+- `-t` is the target URL. Inside the container, `localhost` means the container itself, so use `host.docker.internal` to reach your machine.
+- `-r zap-before.html` saves the report. After your fixes, run the same command with `-r zap-after.html`.
+- The `-v` option shares your current folder with the container as `/zap/wrk`. ZAP writes the report there.
+
+The baseline scan crawls the site for about a minute and checks the responses **passively**. It does not attack the app. The terminal output ends with a summary like this (your alerts and numbers will differ):
+
+```
+WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x 2
+...
+FAIL-NEW: 0  FAIL-INPROG: 0  WARN-NEW: 6  WARN-INPROG: 0  INFO: 0  IGNORE: 0  PASS: 60
+```
+
+Each WARN or FAIL line gives the alert name, its ID in square brackets and the number of URLs affected. Look up an ID at <https://www.zaproxy.org/docs/alerts/> to see what it means and how to fix it. The command exits with code 1 if there is any FAIL, 2 if there are only WARNs and 0 if everything passes. This is how a CI pipeline would use it.
+
+If the scan reports that it cannot reach the target, check that Flask is still running with `--host 0.0.0.0` and that the URL uses port 8000.
+
+**Option B: ZAP desktop app.**
+
+1. In the *Quick Start* tab, click *Automated Scan*.
+2. Set *URL to attack* to `http://localhost:8000/products/widget/reviews`. Leave *Use traditional spider* ticked and *Use ajax spider* unticked.
+3. Click *Attack*. Wait until the progress bars at the bottom finish.
+4. Open the *Alerts* tab to see the findings. Click an alert to see the affected URL, the evidence and the suggested fix.
+5. Save the report with *Report → Generate Report*, choosing the *Traditional HTML Report* template. Name it `zap-before.html`, and later `zap-after.html`.
+
+Unlike the Docker baseline, *Automated Scan* also runs an **active** scan: it sends attack payloads to your app. This finds more problems, but it also posts junk reviews into the in-memory database. Restart Flask before you scan again.
 
 Also try visiting `/products/<img src=x onerror=alert(1)>/reviews` in a browser on the **starter** version. Which line of `app.py` is responsible?
 

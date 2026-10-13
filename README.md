@@ -15,6 +15,8 @@ In this lab you practise the **Red → Green → Refactor** cycle, then use it t
 3. Use SAST and DAST findings to drive new tests.
 4. Fix security flaws without breaking functional behaviour.
 
+After setting up, read the **[project walkthrough](WALKTHROUGH.md)**. It explains what each file and test does and what to expect when you first run the tests.
+
 ---
 
 ## Setup
@@ -28,7 +30,7 @@ cd starter
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r ../requirements.txt
-pytest -q                          # pytest runs all tests in the folder
+pytest -q                          # stops with an ImportError at first: that is expected
 ```
 
 Run one file with `pytest -q test_shopping_cart.py`, and one test with `pytest -q -k new_cart`.

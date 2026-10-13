@@ -49,15 +49,7 @@ Run one file with `pytest -q test_shopping_cart.py`, and one test with `pytest -
 
 Failing tests show a red ✗, passing tests a green ✓, which is exactly the Red → Green cycle you record in your TDD log. Click a failed test to see its failure message. To step through a test, set a breakpoint by clicking left of a line number, then right-click the test and choose *Debug Test*.
 
-If the tests do not appear:
-
-- Check the interpreter shown in the bottom-right status bar. It should say `('.venv': venv)`. If not, click it (or run **Python: Select Interpreter**) and choose the one in `./.venv`.
-- Open the *Output* panel and select *Python* from the drop-down to see the test discovery error. An `ImportError` for `Product` in `test_shopping_cart.py` is expected at first, because `shopping_cart.py` is empty.
-- Click the *Refresh Tests* button at the top of the Testing view after you change the configuration.
-
-For Part 3, `starter/.vscode/launch.json` contains a **Flask app (port 8000)** configuration. Open the *Run and Debug* view (`Ctrl+Shift+D` / `Cmd+Shift+D`), select it and press ▷ (or `F5`). This runs the same command as `flask --app app run --port 8000`, and you can set breakpoints in `app.py`. Press the red ■ to stop it.
-
-Bandit and ZAP have no VS Code integration in this lab: run `bandit` in the VS Code terminal as shown below, and use the ZAP desktop app.
+If the tests do not appear, or to run the Flask app from VS Code in Part 3, see [VSCODE.md](VSCODE.md).
 
 ### Setting up Bandit (SAST)
 
@@ -240,7 +232,7 @@ Start the application. Use port 8000, because macOS uses port 5000 for AirPlay.
 flask --app app run --port 8000
 ```
 
-In VS Code you can instead start the **Flask app (port 8000)** configuration from the *Run and Debug* view (see Setup, Option B). Restarting Flask is then the green ⟳ button in the debug toolbar.
+In VS Code you can instead start the app from the *Run and Debug* view; see [VSCODE.md](VSCODE.md#running-the-flask-app-part-3).
 
 Open `http://localhost:8000/products/widget/reviews` in a browser to check that the app is running. Keep it running while you scan.
 
